@@ -9,7 +9,7 @@ int* f1() {
 //int* f2() {
 //	int* ptr;
 //	*ptr = 10;
-//	return ptr;
+//	return ptr;/
 //}
 
 int* f3() {
@@ -19,6 +19,13 @@ int* f3() {
 	*ptr = 10;
 	return ptr;
 }
+
+// Stack
+//int max_stack_size = 3; // �ʱⰪ
+//int* stack, top = -1;
+//void printStack();
+//void push(int);
+//int pop();
 
 int main() {
 	int* p1, * p2, * p3;
