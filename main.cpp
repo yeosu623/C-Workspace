@@ -1,263 +1,232 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define FALSE 0
+#define TRUE 1
+#define MAX_DISTANCE 99999
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <stdbool.h>
 
-#define ERROR -999;
+int* distance; // = (int*)malloc(sizeof(int) * n); // 을 main 함수에서 선언해주어야 함.
+int* found; // = (int*)malloc(sizeof(int) * n); // 을 main 함수에서 선언해주어야 함.
+int** distance2D; // main 함수에서 n x n 크기의 2차원 동적 배열을 할당해주어야 함.
 
-typedef struct _node {
-	int data;
-	struct _node* link;
-}node;
-
-int top = -1;
-int front_q = -1, rear_q = -1;
-
-void insert_front(node**, int);
-void print_list(node**);
-void insert_last(node**, int);
-int search(node**, int);
-int delete_front(node**);
-int delete_element(node**, int);
-void push(node**, int);
-int pop(node**);
-void add_q(node**, int);
-int delete_q(node**);
-void invert(node**);
-void merge(node**, node**);
-void sort(node**);
-void swap(int*, int*);
+int** makeAdjacencyMatrix(int);
+void shortestpath(int v, int** cost, int* distance, int n, int* found); // Program 6.9. Dijkstra Algorithm
+int choose(int*, int, int*); // Program 6.10. Dijkstra Algorithm을 위한 함수
+void allcosts(int** cost, int** distance, int n); // Program 6.12. Dynamic Programming
+void print_11_1(int, int**);
+void print_11_2(int, int**);
+void print_11_3(int, int**);
 
 int main() {
-	int i;
-	int input = 0;
-	node* A = NULL;
-	node* B = NULL;
+	int n;
+	int** adjacencyMatrix;
 
-	while (true) {
-		printf("input data in A : ");
-		scanf_s("%d", &input);
+	while (1) {
 
-		if (input == -1) break;
-		else insert_last(&A, input);
+		// 실습 11.1
+		printf("11.1. 인접 행렬 형태의 방향성 그래프 생성\n");
+		printf("  노드 수 (n) : ");
+		scanf("%d", &n);
+
+		if (n == -1) break;
+		else {
+			adjacencyMatrix = makeAdjacencyMatrix(n);
+
+			print_11_1(n, adjacencyMatrix);
+		}
+
+
+		// 실습 11.2
+		printf("11.2. 최단 경로 (단일 출발점)\n");
+		distance = (int*)malloc(sizeof(int) * n);
+		found = (int*)malloc(sizeof(int) * n);
+
+		print_11_2(n, adjacencyMatrix);
+
+
+		// 실습 11.3
+		printf("11.3. 최단 경로 (모든 경로)\n");
+		distance2D = (int**)malloc(sizeof(int*) * n);
+		for (int i = 0; i < n; i++)
+			distance2D[i] = (int*)malloc(sizeof(int) * n);
+
+		print_11_3(n, adjacencyMatrix);
+
 	}
-	while (true) {
-		printf("input data in B : ");
-		scanf_s("%d", &input);
 
-		if (input == -1) break;
-		else insert_last(&B, input);
-	}
-
-	printf("A = ");
-	print_list(&A);
-	printf("B = ");
-	print_list(&B);
-
-	merge(&A, &B);
-	printf("A+B = ");
-	print_list(&A);
-
-	sort(&A);
-	printf("sorted A+B = ");
-	print_list(&A);
 }
 
-void insert_front(node** A, int data) {
-	node* temp = (node*)malloc(sizeof(node));
-	temp->data = data;
-	temp->link = *A;
+int** makeAdjacencyMatrix(int n) {
 
-	*A = temp;
-}
+	// 메모리 할당
+	int** adjacencyMatrix = (int**)malloc(sizeof(int*) * n);
+	for (int i = 0; i < n; i++)
+		adjacencyMatrix[i] = (int*)malloc(sizeof(int) * n);
 
-void print_list(node** A) {
-	node* ptr;
+	// 초기값 설정
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (i == j) adjacencyMatrix[i][j] = 0;
+			else adjacencyMatrix[i][j] = MAX_DISTANCE;
+		}
+	}
 
-	for (ptr = *A; ptr != NULL; ptr = ptr->link)
-		printf("%d ", ptr->data);
+	// 에지 정보 입력
+	int col, row, weight;
+	while (1) {
+		printf("  에지 정보 (from to weight) : ");
+		scanf("%d %d %d", &col, &row, &weight);
 
+		if (col == -1 || row == -1 || weight == -1) break;
+		else adjacencyMatrix[col][row] = weight;
+	}
 	printf("\n");
+
+	return adjacencyMatrix;
 }
 
-void insert_last(node** A, int data) {
-	node* temp = (node*)malloc(sizeof(node));
-	temp->data = data;
-	temp->link = NULL;
+void shortestpath(int v, int** cost, int* distance, int n, int* found) {
 
-	node* ptr;
-	if (*A == NULL) {
-		*A = temp;
-	}
-	else {
-		for (ptr = *A; ptr->link != NULL; ptr = ptr->link);
+	// Dijkstra Algorithm
 
-		ptr->link = temp;
+	int i, u, w;
+	for (i = 0; i < n; i++) { // 초기값 설정
+		found[i] = FALSE;
+		distance[i] = cost[v][i];
 	}
+
+	found[v] = TRUE; // 시작 노드를 TRUE로 설정
+	distance[v] = 0; // 시작 노드에서 거리를 0으로 시작
+	for (i = 0; i < n - 2; i++) {
+		u = choose(distance, n, found);
+		found[u] = TRUE;
+
+		for (w = 0; w < n; w++)
+			if (found[w] == FALSE)
+				if (distance[u] + cost[u][w] < distance[w])
+					distance[w] = distance[u] + cost[u][w];
+
+	}
+
 }
 
-int search(node** A, int data) {
-	int nodeNum = 0;
-	node* ptr;
+int choose(int* distance, int n, int* found) {
 
-	if (*A == NULL) {
-		printf("Node A is empty.\n");
-		return ERROR;
-	}
-	else {
-		for (ptr = *A; ptr->data != data; ptr = ptr->link) {
-			nodeNum++;
+	// 아직 S에 포함되지 않은 vertex 중에서 최소 거리르 갖는 vertex를 return
 
-			if (ptr->link == NULL) {
-				printf("Node A has not %d.\n", data);
-				return ERROR;
-			}
+	int i, min, minpos;
+
+	min = INT_MAX;
+	minpos = -1;
+	for(i = 0; i < n; i++)
+		if (distance[i] < min && found[i] == FALSE) {
+			min = distance[i];
+			minpos = i;
 		}
-		return nodeNum;
-	}
+
+	return minpos;
+
 }
 
-int delete_front(node** A) {
-	node* prevA;
-	int data;
+void allcosts(int** cost, int** distance, int n) {
 
-	if (*A == NULL) {
-		printf("Node A is already empty.\n");
-		return ERROR;
-	}
-	else {
-		data = (*A)->data;
-		prevA = *A;
+	// 각 vertex에서 나머지 모든 vertex까지의 최단 경로를 계산.
 
-		*A = (*A)->link;
-		free(prevA);
+	int i, j, k;
 
-		return data;
-	}
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			distance[i][j] = cost[i][j];
+
+	for (k = 0; k < n; k++)
+		for (i = 0; i < n; i++)
+			for (j = 0; j < n; j++)
+				if (distance[i][k] + distance[k][j] < distance[i][j])
+					distance[i][j] = distance[i][k] + distance[k][j];
+
 }
 
-int delete_element(node** A, int data) {
-	node* prevA = NULL;
-	node* ptr;
+void print_11_1(int n, int** adjacencyMatrix) {
 
-	if (*A == NULL) {
-		printf("Node A is already empty.");
-		return ERROR;
-	}
-	else {
-		for (ptr = *A; ptr->data != data; ptr = ptr->link) {
-			prevA = ptr;
+	printf("  인접 행렬을 이용한 그래프의 구성 : \n");
 
-			if (ptr->link == NULL) {
-				printf("Node A has not %d.\n", data);
-				return ERROR;
-			}
+	/* 출력 : [0]    [1]    [2]    [3]    [4]    [5]*/
+	printf("         ");
+	for (int i = 0; i < n; i++)
+		printf("[%d]   ", i);
+	printf("\n");
+
+	/* 출력 :
+	   [ 0]      0     50     45     10  99999  99999
+	   [ 1]  99999      0     10     15  99999  99999
+	   [ 2]  99999  99999      0  99999     30  99999
+	   [ 3]     20  99999  99999      0     15  99999
+	   [ 4]  99999     20     35  99999      0  99999
+	   [ 5]  99999  99999  99999  99999      3      0
+	*/
+	for (int i = 0; i < n; i++) {
+		printf("  [%d] ", i);
+		for (int j = 0; j < n; j++) {
+			printf("%6d", adjacencyMatrix[i][j]);
 		}
-		
-		if (ptr == *A) { // first node
-			prevA = *A;
+		printf("\n");
+	}
+	printf("\n");
 
-			*A = (*A)->link;
-			free(prevA);
+}
 
-			return data;
-		}
-		else if (ptr->link == NULL) { // last node
-			prevA->link = NULL;
-			free(ptr);
+void print_11_2(int n, int** adjacencyMatrix) {
 
-			return data;
-		}
-		else { // middle node
-			prevA->link = ptr->link;
-			free(ptr);
+	int v;
 
-			return data;
+	while (1) {
+		printf("  시작 노드 (v) : ");
+		scanf("%d", &v);
+
+		if (v == -1) break;
+		else {
+			shortestpath(v, adjacencyMatrix, distance, n, found);
+
+			printf("  Distance : ");
+			for (int i = 0; i < n; i++)
+				printf("%d ", distance[i]);
+			printf("\n");
 		}
 	}
+	printf("\n");
+
 }
 
-void push(node** A, int data) {
-	top++;
-	insert_front(A, data);
-}
+void print_11_3(int n, int** adjacencyMatrix) {
 
-int pop(node** A) {
-	delete_front(A);
-	top--;
-}
+	// 각 vertex에서 나머지 모든 vertex까지의 최단 경로를 계산.
+	// 결과는 distance[][]에 저장
+	allcosts(adjacencyMatrix, distance2D, n);
 
-void add_q(node** A, int data) {
-	rear_q++;
-	insert_last(A, data);
-}
+	// 출력
+	printf("  All Path Distance : \n");
 
-int delete_q(node** A) {
-	front_q++;
-	delete_front(A);
-}
+	/* 출력 :  [0]    [1]    [2]    [3]    [4]    [5]*/
+	printf("         ");
+	for (int i = 0; i < n; i++)
+		printf("[%d]   ", i);
+	printf("\n");
 
-void invert(node** A) {
-	node* ptr = *A;
-	node* ptr_next = NULL;
-	node* linkdata = NULL;
-
-	while (ptr != NULL) {
-		ptr_next = ptr->link;
-		ptr->link = linkdata;
-		linkdata = ptr;
-
-		ptr = ptr_next;
+	/* 출력 :
+	   [ 0]      0     45     45     10     25  99999
+	   [ 1]     35      0     10     15     30  99999
+	   [ 2]     85     50      0     65     30  99999
+	   [ 3]     20     35     45      0     15  99999
+	   [ 4]     55     20     30     35      0  99999
+	   [ 5]     58     23     33     38      3      0
+	*/
+	for (int i = 0; i < n; i++) {
+		printf("  [%d] ", i);
+		for (int j = 0; j < n; j++) {
+			printf("%6d", distance2D[i][j]);
+		}
+		printf("\n");
 	}
+	printf("\n");
 
-	*A = linkdata;
-}
-
-void merge(node** merger, node** mergee) {
-	node* ptr;
-
-	for (ptr = *merger; ptr->link != NULL; ptr = ptr->link);
-	ptr->link = *mergee;
-}
-
-void sort(node** A) {
-	int i = 0, j, min;
-	int len = 0;
-	int* data;
-	node* ptr;
-
-	// get length of linked list
-	for (ptr = *A; ptr != NULL; ptr = ptr->link)
-		len++;
-
-	// get all data from linked list
-	data = (int*)malloc(sizeof(int) * len);
-
-	for (ptr = *A; ptr != NULL; ptr = ptr->link)
-		data[i++] = ptr->data;
-
-	// sort data
-	for (i = 0; i < len - 1; i++) {
-		min = i;
-		for (j = i + 1; j < len; j++)
-			if (data[j] < data[min])
-				min = j;
-
-		swap(&data[i], &data[min]);
-	}
-
-	// input sorted data in the linked list
-	i = 0;
-
-	for (ptr = *A; ptr != NULL; ptr = ptr->link)
-		ptr->data = data[i++];
-
-	// free dynamic allocated array
-	free(data);
-}
-
-void swap(int* x, int* y) {
-	int temp = *x;
-	*x = *y;
-	*y = temp;
 }
