@@ -1,37 +1,34 @@
 #include <iostream>
 using namespace std;
 
-class Car {
+class AAA {
 private:
-	char gamerID[20];
-	int fuelGauge;
-	int curSpeed;
+	int num;
+public :
+	AAA()
+		: num(0) {
 
-public:
-	void ShowCarState() {
-		cout << "ShowCarState()" << endl;
 	}
 
-	void Accel() {
-		cout << "Accel()" << endl;
+	AAA& CreateInitObj(int n) const {
+		AAA* ptr = new AAA(n);
+		return *ptr;
 	}
 
-	void Break() {
-		cout << "Break()" << endl;
+	void ShowNum() const {
+		cout << num << endl;
+	}
+private:
+	AAA(int n)
+		: num(n) {
+
 	}
 };
 
 int main() {
-	Car run99;
-	Car* run100 = new Car;
-
-	run99.Accel();
-	run99.Break();
-	run99.ShowCarState();
-
-	run100->Accel();
-	run100->Break();
-	run100->ShowCarState();
+	AAA a1;
+	AAA& a2 = a1.CreateInitObj(10);
+	a2.ShowNum();
 
 	return 0;
 }
