@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>
+#include <vector>
 using namespace std;
 
 int main()
@@ -7,52 +7,26 @@ int main()
 	cin.tie(NULL);
 	ios::sync_with_stdio(false);
 
-	string s;
-	cin >> s;
+	char v[5][15];
 
-	int sum = 0;
-	for (int i = 0; i < s.length(); i++)
+	string s;
+	for (int i = 0; i < 5; i++)
 	{
-		// c, d, l, n, s, z
-		if (s[i] == 'c')
+		cin >> s;
+		for (int j = 0; j < s.length(); j++)
 		{
-			sum++;
-			if (s[i + 1] == '=') { i++; continue; }
-			if (s[i + 1] == '-') { i++; continue; }
-		}
-		else if (s[i] == 'd')
-		{
-			sum++;
-			if (s[i + 1] == 'z' && s[i + 2] == '=') { i += 2; continue; }
-			if (s[i + 1] == '-') { i++; continue; }
-		}
-		else if (s[i] == 'l')
-		{
-			sum++;
-			if (s[i + 1] == 'j') { i++; continue; }
-		}
-		else if (s[i] == 'n')
-		{
-			sum++;
-			if (s[i + 1] == 'j') { i++; continue; }
-		}
-		else if (s[i] == 's')
-		{
-			sum++;
-			if (s[i + 1] == '=') { i++; continue; }
-		}
-		else if (s[i] == 'z')
-		{
-			sum++;
-			if (s[i + 1] == '=') { i++; continue; }
-		}
-		else
-		{
-			sum++;
+			v[i][j] = s[j];
 		}
 	}
 
-	cout << sum;
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			if(v[j][i] != 0)
+				cout << v[j][i];
+		}
+	}
 
 	return 0;
 }
