@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
 int main()
@@ -7,26 +6,10 @@ int main()
 	cin.tie(NULL);
 	ios::sync_with_stdio(false);
 
-	char v[5][15];
+	int a;
+	cin >> a;
 
-	string s;
-	for (int i = 0; i < 5; i++)
-	{
-		cin >> s;
-		for (int j = 0; j < s.length(); j++)
-		{
-			v[i][j] = s[j];
-		}
-	}
-
-	for (int i = 0; i < 15; i++)
-	{
-		for (int j = 0; j < 5; j++)
-		{
-			if(v[j][i] != 0)
-				cout << v[j][i];
-		}
-	}
+	cout << (long)(4 * a);
 
 	return 0;
 }
