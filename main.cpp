@@ -1,34 +1,16 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
-int answer = 0;
-int n;
-int board[15];
-
-bool promising(int cdx)
+void printStar(int i, int j, int a)
 {
-	for (int i = 0; i < cdx; i++)
-	{
-		if (board[cdx] == board[i] || cdx - i == abs(board[cdx] - board[i]))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-void nqueen(int cdx)
-{
-	if (cdx == n) answer++;
+	if ((i / a) % 3 == 1 && (j / a) % 3 == 1)
+		cout << ' ';
 	else
 	{
-		for (int i = 0; i < n; i++)
-		{
-			board[cdx] = i;
-			if (promising(cdx)) nqueen(cdx + 1);
-		}
+		if (a / 3 == 0)
+			cout << '*';
+		else
+			printStar(i, j, a / 3);
 	}
 }
 
@@ -38,10 +20,15 @@ int main()
 	cout.tie(NULL);
 	ios::sync_with_stdio(false);
 
-	cin >> n;
-	nqueen(0);
+	int a;
+	cin >> a;
 
-	cout << answer;
+	for (int i = 0; i < a; i++)
+	{
+		for (int j = 0; j < a; j++)
+			printStar(i, j, a);
+		cout << '\n';
+	}
 
 	return 0;
 }
