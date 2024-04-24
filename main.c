@@ -1,14 +1,33 @@
 #include <stdio.h>
-#define macroFunc() func(1, 2)
-
-int func(int a, int b)
-{
-	if(a == b) return 1;
-	else return 0;
-}
+#include <sys/types.h>
+#include <unistd.h>
 
 int main()
 {
-	int result = macroFunc();
-	printf("%d", result);
+	pid_t p;
+	int i = 0;
+	
+	for(i = 0; i < 3; i++)
+	{
+		p = fork();
+	}
+	
+	if(p == -1)
+	{
+		puts("error");
+	}
+	else if(p == 0)
+	{
+		char* args[] = {"echo", "child", NULL};
+		
+		execvp("echo", args);
+	}
+	else 
+	{
+		char* args[] = {"echo", "parent", NULL};
+		
+		execvp("echo", args);
+	}
+	
+	return 0;
 }
